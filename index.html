@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>고1 통합과학 탐구용 주기율표 | 원소의 주기성과 보어 모형</title>
+  <meta name="description" content="고등학교 1학년 통합과학 원소의 주기성 개념을 보어 원자 모형 애니메이션과 함께 탐구하는 인터랙티브 주기율표 학습 웹 앱입니다.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 1. 앱 헤더 영역 -->
+    <header class="app-header">
+      <div class="curriculum-badge">🔬 고등학교 1학년 통합과학 탐구 마당</div>
+      <h1 class="app-title">원소의 주기성 인터랙티브 주기율표</h1>
+      <p class="app-subtitle">
+        1번 수소(H)부터 20번 칼슘(Ca)까지 카드를 클릭하여 <strong>보어 원자 모형(전자 껍질)</strong>과 <strong>원자가 전자</strong>의 주기성을 탐구해 보세요!
+      </p>
+    </header>
+
+    <!-- 2. 주기성 탐구 미니 퀴즈 배너 (토글 시 표시) -->
+    <section id="quiz-banner" class="quiz-banner hidden" aria-label="원소 주기성 퀴즈">
+      <div class="quiz-header">
+        <div class="quiz-badge">🎯 주기성 탐구 미니 퀴즈</div>
+        <div class="quiz-meta">
+          <span id="quiz-progress">진행: 1 / 10</span>
+          <span id="quiz-score">점수: 0점</span>
+          <button type="button" id="quiz-exit-btn" class="btn-icon-exit" title="퀴즈 종료">✕</button>
+        </div>
+      </div>
+      <div id="quiz-question-text" class="quiz-question-text">
+        문제가 여기에 표시됩니다.
+      </div>
+      <div class="quiz-actions">
+        <button type="button" id="quiz-hint-btn" class="btn-hint">💡 힌트 보기</button>
+        <span id="quiz-hint-text" class="quiz-hint-text hidden"></span>
+        <div id="quiz-feedback" class="quiz-feedback"></div>
+      </div>
+    </section>
+
+    <!-- 3. 필터 및 검색 컨트롤 패널 -->
+    <nav class="control-panel" aria-label="원소 필터 및 검색">
+      <div class="filter-row">
+        <!-- 분류별 필터 버튼 그룹 -->
+        <div class="filter-group">
+          <span class="filter-group-label">분류:</span>
+          <button type="button" class="filter-btn active" data-filter="all">전체 원소</button>
+          <button type="button" class="filter-btn" data-filter="metal">금속 원소</button>
+          <button type="button" class="filter-btn" data-filter="nonmetal-group">비금속 원소</button>
+          <button type="button" class="filter-btn" data-filter="alkali-metal">알칼리 금속 (1족)</button>
+          <button type="button" class="filter-btn" data-filter="alkaline-earth">알칼리 토금속 (2족)</button>
+          <button type="button" class="filter-btn" data-filter="halogen">할로젠 (17족)</button>
+          <button type="button" class="filter-btn" data-filter="noble-gas">비활성 기체 (18족)</button>
+        </div>
+
+        <!-- 우측 원자가 전자 필터, 검색, 퀴즈 모드 버튼 -->
+        <div class="search-and-extras">
+          <!-- 원자가 전자 수 필터 -->
+          <select id="valence-filter-select" class="select-filter" title="원자가 전자 수 필터">
+            <option value="all">원자가 전자 전체</option>
+            <option value="1">원자가 전자 1개 (1족)</option>
+            <option value="2">원자가 전자 2개 (2족)</option>
+            <option value="3">원자가 전자 3개 (13족)</option>
+            <option value="4">원자가 전자 4개 (14족)</option>
+            <option value="5">원자가 전자 5개 (15족)</option>
+            <option value="6">원자가 전자 6개 (16족)</option>
+            <option value="7">원자가 전자 7개 (17족)</option>
+            <option value="0">원자가 전자 0개 (18족)</option>
+          </select>
+
+          <!-- 실시간 원소 검색 -->
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-input" placeholder="기호/이름/번호 검색" autocomplete="off">
+          </div>
+
+          <!-- 퀴즈 시작 버튼 -->
+          <button type="button" id="quiz-toggle-btn" class="btn-quiz-toggle">🎮 주기성 퀴즈 시작</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 4. 주기율표 그리드 보드 -->
+    <main class="table-scroll-wrapper">
+      <div id="periodic-table-grid" class="periodic-table-grid" role="region" aria-label="1~20번 주기율표 그리드">
+        <!-- JavaScript에 의해 족 라벨, 주기 라벨, 1~20번 원소 카드가 동적으로 렌더링됩니다 -->
+      </div>
+    </main>
+
+    <!-- 5. 범례 및 주기성 학습 팁 섹션 -->
+    <footer class="legend-section">
+      <div class="legend-title">📚 원소 분류 범례 & 학습 길잡이</div>
+      <div class="legend-items">
+        <div class="legend-item"><span class="legend-dot" style="background: #ff6b6b;"></span> 알칼리 금속 (1족)</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #ffa94d;"></span> 알칼리 토금속 (2족)</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #ffd43b;"></span> 전이후 금속 (13족 등)</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #69db7c;"></span> 준금속 (13, 14족)</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #4dabf7;"></span> 기타 비금속</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #38d9a9;"></span> 할로젠 원소 (17족)</div>
+        <div class="legend-item"><span class="legend-dot" style="background: #b197fc;"></span> 비활성 기체 (18족)</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 6. 원소 상세 정보 모달 (팝업 창) -->
+  <div id="element-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-name-ko">
+    <div class="modal-content">
+      <!-- 닫기 버튼 -->
+      <button type="button" id="modal-close-btn" class="modal-close-btn" aria-label="닫기">✕</button>
+
+      <div class="modal-body">
+        <!-- 좌측: 보어 원자 모형 시각화 패널 -->
+        <div class="bohr-visual-panel">
+          <div class="bohr-panel-title">⚛️ 보어 원자 모형 (전자 껍질)</div>
+          <div class="bohr-canvas-container">
+            <canvas id="bohr-canvas" width="300" height="300"></canvas>
+          </div>
+          <div class="bohr-legend-guide">
+            <span><i class="bohr-dot valence"></i>황금색: 원자가 전자 (최외각)</span>
+            <span><i class="bohr-dot inner"></i>하늘색: 안쪽 껍질 전자</span>
+          </div>
+        </div>
+
+        <!-- 우측: 원소 상세 과학 정보 패널 -->
+        <div class="info-detail-panel">
+          <div class="info-header">
+            <div class="info-header-top">
+              <div id="modal-symbol" class="modal-symbol">H</div>
+              <div class="modal-name-group">
+                <span id="modal-name-ko" class="modal-name-ko">수소</span>
+                <span id="modal-name-en" class="modal-name-en">Hydrogen</span>
+              </div>
+            </div>
+            <span id="modal-category-badge" class="modal-category-badge">기타 비금속</span>
+          </div>
+
+          <!-- 과학 핵심 수치 데이터 그리드 -->
+          <div class="info-data-grid">
+            <div class="info-box">
+              <div class="info-label">원자 번호 / 원자량</div>
+              <div class="info-val"><span id="modal-number">1번</span> (<span id="modal-weight">1.008</span>)</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">주기율표 위치</div>
+              <div id="modal-position" class="info-val">1주기 1족</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">원자가 전자 수 (화학적 성질 결정)</div>
+              <div id="modal-valence" class="info-val highlight-valence">1개</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">전자 배치 (K - L - M - N)</div>
+              <div id="modal-shells" class="info-val">1</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">화학적 분류</div>
+              <div id="modal-category" class="info-val">기타 비금속</div>
+            </div>
+            <div class="info-box">
+              <div class="info-label">상온 상태 (25℃)</div>
+              <div id="modal-state" class="info-val">기체</div>
+            </div>
+          </div>
+
+          <!-- 원소 설명 -->
+          <div class="description-card">
+            <div class="card-title-sm">📖 원소의 특징과 주기성</div>
+            <p id="modal-description" class="card-text"></p>
+          </div>
+
+          <!-- 실생활 연계 이야기 -->
+          <div class="funfact-card">
+            <div class="card-title-sm">💡 실생활 속 원소 이야기</div>
+            <p id="modal-funfact" class="card-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스크립트 파일 로드 (모듈화 준수) -->
+  <script src="js/elementsData.js"></script>
+  <script src="js/bohrModel.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
